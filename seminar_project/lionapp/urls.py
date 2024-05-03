@@ -7,5 +7,10 @@ urlpatterns = [ # seminar_project/urls.py 에 lion/ 으로 지정했기 때문�
     path('create/', views.create_post),
     path('<int:pk>/', views.get_post), # pk라는 변수이름으로 맞춰줘야함
     # views.py 파일에 get_post에서 pk라고 정했기 때문인듯..?
-    path('delete/<int:pk>', views.delete_post)
+    path('delete/<int:pk>rak', views.delete_post),
+    path('comments/<int:post_id>', views.get_comment),
+    path('member/', views.create_member),
+    path('like/<int:user_id>/<int:post_id>', views.like),
+    path('getlike/<int:post_id>', views.get_likes),
+    path('sort', views.sort_post)
 ]
