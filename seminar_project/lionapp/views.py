@@ -9,8 +9,11 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
+from rest_framework.decorators import authentication_classes
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from .serializers import *
+from drf_yasg.utils import swagger_auto_schema
 
 def api_response(data, message, status):
     response = {
@@ -21,12 +24,14 @@ def api_response(data, message, status):
 
 
 class PostApiView(APIView):
-    def get_objdect(self, pk):
+    authentication_classes = [JWTAuthentication]
+    
+    def get_object(self, pk):
         post = get_object_or_404(Post, pk=pk)
         return post
 
     def get(self, request, pk):
-        post = self.get_objdect(pk)
+        post = self.get_object(pk)
 
         postSerializer = PostSerializer(post)
         message = f"id: {post.pk}번 포스트 조회 성공"
@@ -40,6 +45,19 @@ class PostApiView(APIView):
         return api_response(message = message, status = status.HTTP_200_OK) # 204여도 될 것 같아요
 
 
+@swagger_auto_schema(
+        method="POST", 
+        tags=["lionapp view"],
+        operation_summary="post 생성", 
+        operation_description="post를 생성합니다.",
+        responses={
+            201: '201에 대한 설명', 
+            400: '400에 대한 설명',
+            500: '500에 대한 설명'
+        }
+)
+@authentication_classes([JWTAuthentication])
+@api_view(['POST'])
 def create_post(request):
     if request.method == 'POST':
         data = json.loads(request.body)
@@ -55,6 +73,19 @@ def create_post(request):
         return JsonResponse({'message':'success'})
     return JsonResponse({'message':'POST 요청만 허용됩니다.'})
 
+
+@swagger_auto_schema(
+        method="POST", 
+        tags=["lionapp view"],
+        operation_summary="post 생성", 
+        operation_description="post를 생성합니다.",
+        responses={
+            201: '201에 대한 설명', 
+            400: '400에 대한 설명',
+            500: '500에 대한 설명'
+        }
+)
+@authentication_classes([JWTAuthentication])
 @api_view(['POST'])
 def create_post_v2(request):
     post = Post(
@@ -66,7 +97,19 @@ def create_post_v2(request):
     message = f"id: {post.pk}번 포스트 생성 성공"
     return api_response(data = None, message = message, status = status.HTTP_201_CREATED)
 
-
+@swagger_auto_schema(
+        method="POST", 
+        tags=["lionapp view"],
+        operation_summary="member 생성", 
+        operation_description="member를 생성합니다.",
+        responses={
+            201: '201에 대한 설명', 
+            400: '400에 대한 설명',
+            500: '500에 대한 설명'
+        }
+)
+@authentication_classes([JWTAuthentication])
+@api_view(['POST'])
 def create_member(request):
     if request.method == 'POST':
         data = json.loads(request.body)
@@ -83,6 +126,19 @@ def create_member(request):
     return JsonResponse({'message':'POST 요청만 허용됩니다.'})
 
 
+@swagger_auto_schema(
+        method="GET", 
+        tags=["lionapp view"],
+        operation_summary="post 조회", 
+        operation_description="post를 조회합니다.",
+        responses={
+            201: '201에 대한 설명', 
+            400: '400에 대한 설명',
+            500: '500에 대한 설명'
+        }
+)
+@authentication_classes([JWTAuthentication])
+@api_view(['GET'])
 def get_post(request, pk):
     post = get_object_or_404(Post, pk=pk)
     data = {
@@ -94,6 +150,19 @@ def get_post(request, pk):
     return JsonResponse(data, status=200)
 
 
+@swagger_auto_schema(
+        method="DELETE", 
+        tags=["lionapp view"],
+        operation_summary="post 삭제", 
+        operation_description="post를 삭제합니다.",
+        responses={
+            201: '201에 대한 설명', 
+            400: '400에 대한 설명',
+            500: '500에 대한 설명'
+        }
+)
+@authentication_classes([JWTAuthentication])
+@api_view(['DELETE'])
 def delete_post(request, pk):
     if request.method == 'DELETE':
         post = get_object_or_404(Post, pk=pk)
@@ -106,6 +175,19 @@ def delete_post(request, pk):
     return JsonResponse({'message':'DELETE 요청만 허용됩니다.'})
 
 
+@swagger_auto_schema(
+        method="GET", 
+        tags=["lionapp view"],
+        operation_summary="comment 얻기", 
+        operation_description="comment를 얻습니다.",
+        responses={
+            201: '201에 대한 설명', 
+            400: '400에 대한 설명',
+            500: '500에 대한 설명'
+        }
+)
+@authentication_classes([JWTAuthentication])
+@api_view(['GET'])
 def get_comment(request, post_id):
     if request.method == 'GET':
         post = get_object_or_404(Post, pk=post_id)
@@ -113,6 +195,19 @@ def get_comment(request, post_id):
         return HttpResponse(comment_list, status=200)
 
 
+@swagger_auto_schema(
+        method="PATCH", 
+        tags=["lionapp view"],
+        operation_summary="like 생성", 
+        operation_description="like를 누릅니다.",
+        responses={
+            201: '201에 대한 설명', 
+            400: '400에 대한 설명',
+            500: '500에 대한 설명'
+        }
+)
+@authentication_classes([JWTAuthentication])
+@api_view(['PATCH'])
 def like(request, user_id, post_id):
     if request.method == 'PATCH':
         if UserPost.objects.filter(user_id=user_id, post_id=post_id).exists():
@@ -127,6 +222,19 @@ def like(request, user_id, post_id):
             return JsonResponse(status=204)
 
 
+@swagger_auto_schema(
+        method="GET", 
+        tags=["lionapp view"],
+        operation_summary="like 정보", 
+        operation_description="like 갯수를 얻습니다.",
+        responses={
+            201: '201에 대한 설명', 
+            400: '400에 대한 설명',
+            500: '500에 대한 설명'
+        }
+)
+@authentication_classes([JWTAuthentication])
+@api_view(['GET'])
 def get_likes(request, post_id):
     if request.method == 'GET':
         post = get_object_or_404(Post, pk=post_id)
@@ -134,6 +242,19 @@ def get_likes(request, post_id):
         return JsonResponse({'message':f'{post_id}의 총 하트 수는 {like_count}입니다.'})
 
 
+@swagger_auto_schema(
+        method="GET", 
+        tags=["lionapp view"],
+        operation_summary="post 정렬", 
+        operation_description="post를 comment 갯수 순으로 정렬합니다.",
+        responses={
+            201: '201에 대한 설명', 
+            400: '400에 대한 설명',
+            500: '500에 대한 설명'
+        }
+)
+@authentication_classes([JWTAuthentication])
+@api_view(['GET'])
 def sort_post(request):
     if request.method == 'GET':
         post_list = Post.objects.annotate(comment_count=Count('comments')).order_by('-comment_count') # Post 객체 모두 가져옴
