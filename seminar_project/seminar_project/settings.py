@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 from pathlib import Path
+from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -24,6 +25,8 @@ SECRET_KEY = 'django-insecure-_a@%eq7d(8ffd%9esm8xma!5($%5*7v#2mg70e@u(c8=piylm7
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+# 에러가 났을 때 화면에 노란색 창이 뜨면서 어디에 에러가 났는지 코드를 보여줌
+# 배포할때는 False로 하고 하는듯
 
 ALLOWED_HOSTS = ['*']
 
@@ -31,12 +34,13 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
-    'corsheader',
     # my app
     'util',
     'lionapp',
+    'users',
     # third party app
     'rest_framework',
+    'rest_framework_simplejwt',
     # Basic App
     'django.contrib.admin',
     'django.contrib.auth',
@@ -47,7 +51,6 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -55,33 +58,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-]
-
-CORS_ALLOW_METHODS = [  # 허용할 옵션
-    'DELETE',
-    'GET',
-    'OPTIONS',
-    'PATCH',
-    'POST',
-    'PUT',
-]
-
-CORS_ALLOW_HEADERS = [  # 허용할 헤더
-    'accept',
-    'accept-encoding',
-    'authorization',
-    'content-type',
-    'dnt',
-    'origin',
-    'user-agent',
-    'x-csrftoken',
-    'x-requested-with',
-]
-
-CORS_ALLOW_CREDENTIALS = True
-
-CORS_ALLOW_ORIGINS = [
-    'https://likelion-fivedasol.p-e.kr/',
 ]
 
 ROOT_URLCONF = 'seminar_project.urls'
@@ -134,6 +110,29 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+AUTH_USER_MODEL = 'users.User' # 커스텀 유저를 장고에서 사용하기 위해
+
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',  # 인증된 요청인지 확인
+        #'rest_framework.permissions.AllowAny',  # 누구나 접근 가능 
+		# (기본적으로 누구나 접근 가능하게 설정하고, 인증된 요청인지 확인하는 api를 따로 지정하게 하려면 
+		# 이 옵션을 위의 옵션 대신 켜주어도 됩니다!)
+    ),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',  # JWT를 통한 인증방식 사용
+    ),
+}
+
+REST_USE_JWT = True
+
+SIMPLE_JWT = {
+    'SIGNING_KEY': 'hellolikelionhellolikelion',
+    'ACCESS_TOKEN_LIFETIME': timedelta(hours=1), # access token 유효기간 1시간
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7), # refresh token 유효기간 7일로 설정
+    'ROTATE_REFRESH_TOKENS': False,
+    'BLACKLIST_AFTER_ROTATION': True,
+}
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
